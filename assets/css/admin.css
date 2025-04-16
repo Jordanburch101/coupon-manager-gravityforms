@@ -1,0 +1,53 @@
+/**
+ * GF Coupon Generator admin styles
+ */
+
+.gf-coupon-generator .form-container {
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+}
+
+.gf-coupon-generator .form-section {
+    margin-bottom: 30px;
+}
+
+.gf-coupon-generator .form-section h2 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.gf-coupon-generator .submit-section {
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+}
+
+.gf-coupon-generator .spinner {
+    float: none;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.gf-coupon-generator .spinner.is-active {
+    visibility: visible;
+}
+
+#results-container {
+    margin-top: 30px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+}
+
+#coupons-table {
+    margin-top: 15px;
+}
+
+#export-csv-btn {
+    margin-top: 15px;
+} 
