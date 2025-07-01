@@ -97,7 +97,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: phpcs, phpcbf
+          tools: phpcs, phpcbf, composer
+      
+      - name: Install WordPress Coding Standards
+        run: |
+          # Install WordPress coding standards
+          composer global require wp-coding-standards/wpcs:"^3.0" --no-interaction
+          # Configure PHPCS to use WordPress standards
+          phpcs --config-set installed_paths $(composer global config home)/vendor/wp-coding-standards/wpcs
       
       - name: Run PHP CodeSniffer
         run: |
