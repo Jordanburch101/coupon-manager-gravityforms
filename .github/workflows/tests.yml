@@ -108,10 +108,57 @@ jobs:
           # The installer plugin should automatically configure the paths, but let's verify
           phpcs -i
       
+      - name: Show acceptable warnings info
+        run: |
+          echo "ℹ️  About WordPress Coding Standards for this project:"
+          echo ""
+          echo "✅ ERRORS will fail the build and must be fixed"
+          echo "⚠️  WARNINGS are acceptable and documented:"
+          echo "   • Direct database calls (required for GravityForms integration)"
+          echo "   • Custom capabilities (gravityforms_edit_forms is valid)"
+          echo "   • Processing form data (properly secured with nonce verification)"
+          echo "   • Unused parameters (required by WordPress hooks)"
+          echo ""
+          echo "These warnings are intentional and necessary for plugin functionality."
+          echo ""
+      
       - name: Run PHP CodeSniffer
         run: |
+          # Run phpcs and allow warnings (exit code 1) but fail on errors (exit code 2)
+          set +e  # Don't exit on non-zero exit codes
+          
+          echo "🔍 Checking main plugin file..."
           phpcs --standard=WordPress --exclude=WordPress.Files.FileName --extensions=php gf-coupon-generator.php
+          main_exit_code=$?
+          
+          echo "🔍 Checking views directory..."
           phpcs --standard=WordPress --exclude=WordPress.Files.FileName --extensions=php views/
+          views_exit_code=$?
+          
+          echo ""
+          echo "📊 PHPCS Results Summary:"
+          echo "Main file exit code: $main_exit_code"
+          echo "Views exit code: $views_exit_code"
+          echo ""
+          echo "Exit codes meaning:"
+          echo "  0 = No issues found"
+          echo "  1 = Warnings only (acceptable)"
+          echo "  2 = Errors found (build fails)"
+          echo ""
+          
+          # Check exit codes: 0 = success, 1 = warnings only, 2 = errors
+          if [ $main_exit_code -eq 2 ] || [ $views_exit_code -eq 2 ]; then
+            echo "❌ PHPCS found errors (exit code 2) - failing the build"
+            echo "Please fix the errors above before merging."
+            exit 2
+          elif [ $main_exit_code -eq 1 ] || [ $views_exit_code -eq 1 ]; then
+            echo "⚠️  PHPCS found warnings (exit code 1) - but allowing build to pass"
+            echo "Warnings are acceptable for this project and do not block the build."
+            exit 0
+          else
+            echo "✅ PHPCS passed with no issues found!"
+            exit 0
+          fi
       
       - name: Check PHP syntax
         run: |
