@@ -1,0 +1,45 @@
+{
+    "name": "your-vendor/gf-coupon-generator",
+    "description": "Bulk generate coupons for GravityForms Coupons addon",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Jordan Burch",
+            "homepage": "https://github.com/Jordanburch101"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "yoast/phpunit-polyfills": "^1.0",
+        "mockery/mockery": "^1.5",
+        "brain/monkey": "^2.6",
+        "wp-phpunit/wp-phpunit": "^5.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "GFCouponGenerator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GFCouponGenerator\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test:unit": "vendor/bin/phpunit --testsuite unit",
+        "test:integration": "vendor/bin/phpunit --testsuite integration",
+        "test:database": "vendor/bin/phpunit --testsuite database",
+        "test:coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "install-wp-tests": "bash tests/bin/install-wp-tests.sh"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+} 

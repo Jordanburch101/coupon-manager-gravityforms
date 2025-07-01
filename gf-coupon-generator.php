@@ -42,6 +42,7 @@ class GF_Coupon_Generator {
         
         // Ajax handlers
         add_action('wp_ajax_generate_gf_coupons', array($this, 'generate_coupons_ajax'));
+        add_action('wp_ajax_update_gf_coupons', array($this, 'update_coupons_ajax'));
     }
     
     public function check_dependencies() {
@@ -215,6 +216,202 @@ class GF_Coupon_Generator {
         }
         
         return $code;
+    }
+    
+    public function update_coupons_ajax() {
+        check_ajax_referer('gf_coupon_generator_nonce', 'nonce');
+        
+        if (!current_user_can('gravityforms_edit_forms')) {
+            wp_send_json_error('Permission denied');
+        }
+        
+        $csv_content = isset($_POST['csv_content']) ? sanitize_textarea_field($_POST['csv_content']) : '';
+        $update_action = isset($_POST['update_action']) ? sanitize_text_field($_POST['update_action']) : '';
+        
+        if (empty($csv_content) || empty($update_action)) {
+            wp_send_json_error('Missing required parameters');
+        }
+        
+        // Parse CSV
+        $coupon_codes = $this->parse_csv_for_codes($csv_content);
+        
+        if (empty($coupon_codes)) {
+            wp_send_json_error('No valid coupon codes found in CSV');
+        }
+        
+        // Collect update parameters
+        $update_params = array();
+        
+        switch ($update_action) {
+            case 'discount':
+                $update_params['amount_type'] = isset($_POST['new_amount_type']) ? sanitize_text_field($_POST['new_amount_type']) : '';
+                $update_params['amount_value'] = isset($_POST['new_amount_value']) ? sanitize_text_field($_POST['new_amount_value']) : '';
+                break;
+            case 'dates':
+                $update_params['start_date'] = isset($_POST['new_start_date']) ? sanitize_text_field($_POST['new_start_date']) : '';
+                $update_params['expiry_date'] = isset($_POST['new_expiry_date']) ? sanitize_text_field($_POST['new_expiry_date']) : '';
+                break;
+            case 'usage':
+                $update_params['usage_limit'] = isset($_POST['new_usage_limit']) ? intval($_POST['new_usage_limit']) : 1;
+                break;
+            case 'stackable':
+                $update_params['is_stackable'] = isset($_POST['new_is_stackable']) ? intval($_POST['new_is_stackable']) : 0;
+                break;
+            case 'activate':
+                $update_params['is_active'] = 1;
+                break;
+            case 'deactivate':
+                $update_params['is_active'] = 0;
+                break;
+        }
+        
+        // Update coupons
+        $results = $this->update_coupons($coupon_codes, $update_action, $update_params);
+        
+        wp_send_json_success($results);
+    }
+    
+    private function parse_csv_for_codes($csv_content) {
+        $codes = array();
+        $lines = explode("\n", $csv_content);
+        $header_found = false;
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            
+            // Parse CSV line (handle quoted values)
+            $values = str_getcsv($line);
+            
+            if (!$header_found) {
+                // Check if first line contains "coupon_code" header
+                if (strtolower(trim($values[0])) === 'coupon_code') {
+                    $header_found = true;
+                    continue;
+                }
+                // If no header, treat first line as data
+            }
+            
+            // Get the first column value (coupon code)
+            if (!empty($values[0])) {
+                $codes[] = trim($values[0]);
+            }
+        }
+        
+        return array_unique($codes); // Remove duplicates
+    }
+    
+    private function update_coupons($coupon_codes, $update_action, $update_params) {
+        global $wpdb;
+        
+        $results = array(
+            'results' => array()
+        );
+        
+        foreach ($coupon_codes as $coupon_code) {
+            $result = array(
+                'coupon_code' => $coupon_code,
+                'status' => 'error',
+                'message' => ''
+            );
+            
+            // Find coupon by code
+            $coupon = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}gf_addon_feed 
+                WHERE addon_slug = 'gravityformscoupons' 
+                AND meta LIKE %s",
+                '%"couponCode":"' . $wpdb->esc_like($coupon_code) . '"%'
+            ));
+            
+            if (!$coupon) {
+                $result['message'] = 'Coupon not found';
+                $results['results'][] = $result;
+                continue;
+            }
+            
+            // Decode existing meta
+            $meta = json_decode($coupon->meta, true);
+            if (!$meta) {
+                $result['message'] = 'Invalid coupon data';
+                $results['results'][] = $result;
+                continue;
+            }
+            
+            // Update meta based on action
+            $updated = false;
+            
+            switch ($update_action) {
+                case 'discount':
+                    if (!empty($update_params['amount_type']) && !empty($update_params['amount_value'])) {
+                        $meta['couponAmountType'] = $update_params['amount_type'];
+                        $meta['couponAmount'] = ($update_params['amount_type'] === 'flat') ? 
+                            '$' . $update_params['amount_value'] : $update_params['amount_value'];
+                        $updated = true;
+                    }
+                    break;
+                    
+                case 'dates':
+                    if (!empty($update_params['start_date'])) {
+                        $meta['startDate'] = $update_params['start_date'];
+                        $updated = true;
+                    }
+                    if (isset($update_params['expiry_date'])) {
+                        $meta['endDate'] = $update_params['expiry_date'];
+                        $updated = true;
+                    }
+                    break;
+                    
+                case 'usage':
+                    $meta['usageLimit'] = (string)$update_params['usage_limit'];
+                    $updated = true;
+                    break;
+                    
+                case 'stackable':
+                    $meta['isStackable'] = (string)$update_params['is_stackable'];
+                    $updated = true;
+                    break;
+                    
+                case 'activate':
+                case 'deactivate':
+                    // Update is_active field directly
+                    $update_result = $wpdb->update(
+                        $wpdb->prefix . 'gf_addon_feed',
+                        array('is_active' => $update_params['is_active']),
+                        array('id' => $coupon->id)
+                    );
+                    
+                    if ($update_result !== false) {
+                        $result['status'] = 'success';
+                        $result['message'] = ($update_action === 'activate') ? 'Coupon activated' : 'Coupon deactivated';
+                    } else {
+                        $result['message'] = 'Failed to update coupon status';
+                    }
+                    $results['results'][] = $result;
+                    continue 2;
+            }
+            
+            // Save updated meta
+            if ($updated) {
+                $update_result = $wpdb->update(
+                    $wpdb->prefix . 'gf_addon_feed',
+                    array('meta' => json_encode($meta)),
+                    array('id' => $coupon->id)
+                );
+                
+                if ($update_result !== false) {
+                    $result['status'] = 'success';
+                    $result['message'] = 'Coupon updated successfully';
+                } else {
+                    $result['message'] = 'Failed to update coupon';
+                }
+            } else {
+                $result['message'] = 'No changes to apply';
+            }
+            
+            $results['results'][] = $result;
+        }
+        
+        return $results;
     }
 }
 

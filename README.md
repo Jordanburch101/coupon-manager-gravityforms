@@ -1,58 +1,98 @@
-# GravityForms Coupon Generator
+# GravityForms Coupon Manager
 
-A WordPress plugin that allows you to bulk generate coupons for GravityForms.
+A WordPress plugin that allows bulk generation and updating of coupons for the GravityForms Coupons addon.
 
-## Description
+## Features
 
-This plugin provides an easy way to generate multiple coupons at once for the GravityForms Coupons addon. It adds rows directly to the `wp_gf_addon_feed` table with the necessary coupon configuration.
+### Generate Coupons
+- Bulk generate multiple coupons at once
+- Customize coupon codes with prefixes
+- Set discount types (percentage or flat amount)
+- Configure usage limits and expiration dates
+- Export generated coupons to CSV
+
+### Update Existing Coupons (NEW)
+- Upload CSV file with coupon codes to update
+- Batch update various coupon properties:
+  - **Discount Amount/Type**: Change from percentage to flat amount or vice versa
+  - **Dates**: Update start and expiry dates
+  - **Usage Limits**: Modify how many times coupons can be used
+  - **Stackable Setting**: Allow or disallow combining with other coupons
+  - **Activation Status**: Activate or deactivate coupons in bulk
+- Data integrity checks to ensure only existing coupons are updated
+- Detailed results showing success/failure for each coupon
+- Export update results to CSV
 
 ## Requirements
 
 - WordPress 5.0+
-- GravityForms 2.4+
-- GravityForms Coupons Add-on
+- GravityForms plugin
+- GravityForms Coupons addon
+- PHP 7.0+
 
 ## Installation
 
-1. Upload the `gf-coupon-generator` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Navigate to Forms > Coupon Generator to use the plugin
-
-## Features
-
-- Generate multiple coupons in one click
-- Configure coupon settings:
-  - Target form
-  - Coupon prefix
-  - Coupon code length
-  - Discount type (percentage or flat amount)
-  - Discount value
-  - Start date
-  - Expiry date
-  - Usage limit
-  - Stackable option
-- Export generated coupons to CSV
+1. Upload the plugin files to `/wp-content/plugins/gf-coupon-generator/`
+2. Activate the plugin through the WordPress admin
+3. Navigate to Forms > Coupon Manager in the admin menu
 
 ## Usage
 
-1. Go to Forms > Coupon Generator in the WordPress admin
-2. Select the target form for the coupons
-3. Configure coupon settings:
-   - Quantity: number of coupons to generate
-   - Coupon prefix (optional): prefix to add to all coupon codes
-   - Coupon length: length of the random part of the code
-   - Discount type: percentage or flat amount
-   - Discount value: amount of the discount
-   - Usage limit: how many times each coupon can be used
-   - Stackable: whether the coupon can be combined with others
-   - Start date/Expiry date: validity period for coupons
+### Generating New Coupons
+
+1. Go to the "Generate Coupons" tab
+2. Select the target form
+3. Configure coupon settings (prefix, discount type, amount, etc.)
 4. Click "Generate Coupons"
-5. View the generated coupons and export to CSV if needed
+5. Export the generated coupon codes to CSV if needed
+
+### Updating Existing Coupons
+
+1. Go to the "Update Existing Coupons" tab
+2. Prepare a CSV file with one column:
+   - Header: `coupon_code`
+   - List coupon codes one per row
+3. Upload the CSV file
+4. Select the update action:
+   - Change Discount Amount/Type
+   - Update Dates
+   - Update Usage Limit
+   - Update Stackable Setting
+   - Activate/Deactivate Coupons
+5. Fill in the new values based on your selected action
+6. Click "Update Coupons"
+7. Review the results and export if needed
+
+### Example: Changing Multiple Coupons from 100% to $30 Discount
+
+1. Create a CSV file with coupon codes:
+   ```
+   coupon_code
+   SUMMER-abc123
+   SUMMER-def456
+   SUMMER-ghi789
+   ```
+
+2. Upload the CSV file
+3. Select "Change Discount Amount/Type" as the update action
+4. Choose "Flat Amount ($)" as the new discount type
+5. Enter "30" as the new discount value
+6. Click "Update Coupons"
+
+## CSV Format
+
+The CSV file for updating coupons should have:
+- First row: `coupon_code` (header)
+- Subsequent rows: One coupon code per row
+- The plugin will ignore empty rows and remove duplicates
+
+## Security Features
+
+- Permission checks ensure only users with `gravityforms_edit_forms` capability can use the plugin
+- All inputs are properly sanitized
+- Database queries use prepared statements
+- AJAX requests are protected with nonces
 
 ## Support
 
-For support or feature requests, please create an issue on the GitHub repository.
-
-## License
-
-This plugin is licensed under the GPL v2 or later. 
+For issues or feature requests, please contact the plugin author. 

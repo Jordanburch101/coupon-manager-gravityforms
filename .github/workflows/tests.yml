@@ -1,0 +1,140 @@
+name: Plugin Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1']
+        wordpress-version: ['5.9', '6.0', 'latest']
+        include:
+          - php-version: '8.2'
+            wordpress-version: 'latest'
+    
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli, json, mbstring
+          coverage: xdebug
+          tools: composer:v2
+      
+      - name: Install Composer dependencies
+        run: |
+          composer require --dev phpunit/phpunit:^9.0 yoast/phpunit-polyfills:^1.0
+          composer install --prefer-dist --no-progress
+      
+      - name: Install WordPress Test Suite
+        run: |
+          bash tests/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 ${{ matrix.wordpress-version }} true
+      
+      - name: Run PHPUnit tests
+        env:
+          WP_TESTS_DB_NAME: wordpress_test
+          WP_TESTS_DB_USER: root
+          WP_TESTS_DB_PASS: root
+          WP_TESTS_DB_HOST: 127.0.0.1:3306
+        run: |
+          vendor/bin/phpunit --testsuite unit
+          vendor/bin/phpunit --testsuite integration
+          vendor/bin/phpunit --testsuite database
+      
+      - name: Generate test coverage
+        if: matrix.php-version == '8.1' && matrix.wordpress-version == 'latest'
+        run: |
+          vendor/bin/phpunit --coverage-html coverage --coverage-clover coverage.xml
+      
+      - name: Upload coverage to Codecov
+        if: matrix.php-version == '8.1' && matrix.wordpress-version == 'latest'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+      
+      - name: Upload coverage artifacts
+        if: matrix.php-version == '8.1' && matrix.wordpress-version == 'latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: phpcs, phpcbf
+      
+      - name: Run PHP CodeSniffer
+        run: |
+          phpcs --standard=WordPress --exclude=WordPress.Files.FileName --extensions=php gf-coupon-generator.php
+          phpcs --standard=WordPress --exclude=WordPress.Files.FileName --extensions=php views/
+      
+      - name: Check PHP syntax
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -not -path "./tests/*" -exec php -l {} \;
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run security checks
+        run: |
+          # Check for SQL injection vulnerabilities
+          grep -r "\$wpdb->query\|->prepare" --include="*.php" | grep -v "tests/" || true
+          
+          # Check for XSS vulnerabilities
+          grep -r "echo\|print" --include="*.php" | grep -v "esc_\|wp_kses\|sanitize" | grep -v "tests/" || true
+          
+          # Check for nonce verification
+          grep -r "wp_ajax_" --include="*.php" | grep -v "check_ajax_referer\|wp_verify_nonce" | grep -v "tests/" || true
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup integration environment
+        run: |
+          # This would be where you set up a full WordPress environment
+          # with GravityForms mocked or using test licenses
+          echo "Integration tests placeholder"
+      
+      - name: Run integration tests
+        run: |
+          echo "Would run full integration tests here" 

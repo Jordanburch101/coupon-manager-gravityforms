@@ -50,4 +50,63 @@
 
 #export-csv-btn {
     margin-top: 15px;
+}
+
+.gf-coupon-generator .notice {
+    max-width: 800px;
+}
+
+/* Tab styles */
+.gf-coupon-generator .nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.gf-coupon-generator .tab-content {
+    display: none;
+}
+
+.gf-coupon-generator .tab-content.active {
+    display: block;
+}
+
+/* Update form styles */
+#update-fields-container {
+    margin-top: 20px;
+}
+
+.update-fields {
+    display: none;
+}
+
+#update_csv_file {
+    width: 100%;
+    max-width: 400px;
+}
+
+#update-results-container {
+    margin-top: 30px;
+}
+
+#update-results-message .notice {
+    margin: 10px 0;
+}
+
+#update-results-table {
+    margin-top: 20px;
+}
+
+#update-results-table th:first-child {
+    width: 30%;
+}
+
+#update-results-table th:nth-child(2) {
+    width: 20%;
+}
+
+#update-results-table .success {
+    color: #46b450;
+}
+
+#update-results-table .error {
+    color: #dc3232;
 } 
