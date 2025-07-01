@@ -48,8 +48,8 @@ if ( class_exists( 'GFAPI' ) ) {
 							<td>
 								<select name="form_id" id="form_id" required>
 									<option value=""><?php esc_html_e( '-- Select Form --', 'gf-coupon-generator' ); ?></option>
-									<?php foreach ( $forms as $id => $title ) : ?>
-										<option value="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $title ); ?></option>
+									<?php foreach ( $forms as $form_id => $form_title ) : ?>
+										<option value="<?php echo esc_attr( $form_id ); ?>"><?php echo esc_html( $form_title ); ?></option>
 									<?php endforeach; ?>
 								</select>
 								<p class="description"><?php esc_html_e( 'Select the form these coupons will be applied to.', 'gf-coupon-generator' ); ?></p>
