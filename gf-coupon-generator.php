@@ -22,6 +22,15 @@ define( 'GF_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
+ * Initialize plugin.
+ *
+ * @return GF_Coupon_Generator
+ */
+function gf_coupon_generator_init() {
+	return GF_Coupon_Generator::get_instance();
+}
+
+/**
  * Main plugin class for GravityForms Coupon Generator.
  */
 class GF_Coupon_Generator {
@@ -106,6 +115,7 @@ class GF_Coupon_Generator {
 	 * @param string $hook The current admin page hook.
 	 */
 	public function enqueue_admin_assets( $hook ) {
+		// Unused parameter but required by WordPress hook.
 		// Updated hook check for GF pages.
 		if ( is_admin() && isset( $_GET['page'] ) && 'gf_coupon_generator' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
 			wp_enqueue_style(
@@ -331,11 +341,11 @@ class GF_Coupon_Generator {
 
 		switch ( $update_action ) {
 			case 'discount':
-				$update_params['amount_type']  = isset( $_POST['new_amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_type'] ) ) : '';
+				$update_params['amount_type'] = isset( $_POST['new_amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_type'] ) ) : '';
 				$update_params['amount_value'] = isset( $_POST['new_amount_value'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_value'] ) ) : '';
 				break;
 			case 'dates':
-				$update_params['start_date']  = isset( $_POST['new_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_start_date'] ) ) : '';
+				$update_params['start_date'] = isset( $_POST['new_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_start_date'] ) ) : '';
 				$update_params['expiry_date'] = isset( $_POST['new_expiry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_expiry_date'] ) ) : '';
 				break;
 			case 'usage':
@@ -518,15 +528,6 @@ class GF_Coupon_Generator {
 
 		return $results;
 	}
-}
-
-/**
- * Initialize plugin.
- *
- * @return GF_Coupon_Generator
- */
-function gf_coupon_generator_init() {
-	return GF_Coupon_Generator::get_instance();
 }
 
 // Start the plugin.

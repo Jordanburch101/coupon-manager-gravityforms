@@ -47,4 +47,9 @@
 	<rule ref="WordPress.Security.NonceVerification">
 		<exclude-pattern>views/admin-page.php</exclude-pattern>
 	</rule>
+
+	<!-- Allow unused parameters in WordPress hooks -->
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
+	</rule>
 </ruleset> 
