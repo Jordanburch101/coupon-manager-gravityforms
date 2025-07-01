@@ -103,10 +103,10 @@ jobs:
         run: |
           # Allow the phpcodesniffer composer installer plugin
           composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-          # Install WordPress coding standards
-          composer global require wp-coding-standards/wpcs:"^3.0" --no-interaction
-          # Configure PHPCS to use WordPress standards
-          phpcs --config-set installed_paths $(composer global config home)/vendor/wp-coding-standards/wpcs
+          # Install WordPress coding standards with all dependencies
+          composer global require wp-coding-standards/wpcs:"^3.0" phpcsstandards/phpcsutils:"^1.0" phpcsstandards/phpcsextra:"^1.0" --no-interaction
+          # The installer plugin should automatically configure the paths, but let's verify
+          phpcs -i
       
       - name: Run PHP CodeSniffer
         run: |
