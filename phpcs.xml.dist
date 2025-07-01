@@ -22,9 +22,6 @@
 	<rule ref="WordPress">
 		<!-- Exclude filename rules as plugin files don't follow this -->
 		<exclude name="WordPress.Files.FileName"/>
-		
-		<!-- Allow mixed function/class declarations for plugin files -->
-		<exclude name="Generic.Files.OneObjectStructurePerFile"/>
 	</rule>
 
 	<!-- Custom capabilities for GravityForms -->

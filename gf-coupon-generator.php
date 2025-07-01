@@ -22,15 +22,6 @@ define( 'GF_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Initialize plugin.
- *
- * @return GF_Coupon_Generator
- */
-function gf_coupon_generator_init() {
-	return GF_Coupon_Generator::get_instance();
-}
-
-/**
  * Main plugin class for GravityForms Coupon Generator.
  */
 class GF_Coupon_Generator {
@@ -530,5 +521,5 @@ class GF_Coupon_Generator {
 	}
 }
 
-// Start the plugin.
-gf_coupon_generator_init();
+// Initialize the plugin.
+GF_Coupon_Generator::get_instance();
