@@ -7,6 +7,8 @@
  * Author URI: https://github.com/Jordanburch101
  * Text Domain: gf-coupon-generator
  * Package: GF_Coupon_Generator
+ *
+ * @package GF_Coupon_Generator
  */
 
 // Exit if accessed directly.
@@ -105,7 +107,7 @@ class GF_Coupon_Generator {
 	 */
 	public function enqueue_admin_assets( $hook ) {
 		// Updated hook check for GF pages.
-		if ( is_admin() && isset( $_GET['page'] ) && 'gf_coupon_generator' === $_GET['page'] ) {
+		if ( is_admin() && isset( $_GET['page'] ) && 'gf_coupon_generator' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
 			wp_enqueue_style(
 				'gf-coupon-generator-css',
 				GF_COUPON_GEN_URL . 'assets/css/admin.css',
@@ -149,16 +151,16 @@ class GF_Coupon_Generator {
 			wp_send_json_error( 'Permission denied' );
 		}
 
-		$form_id        = isset( $_POST['form_id'] ) ? intval( $_POST['form_id'] ) : 0;
-		$coupon_prefix  = isset( $_POST['coupon_prefix'] ) ? sanitize_text_field( wp_unslash( $_POST['coupon_prefix'] ) ) : '';
-		$coupon_length  = isset( $_POST['coupon_length'] ) ? intval( $_POST['coupon_length'] ) : 8;
-		$amount_type    = isset( $_POST['amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['amount_type'] ) ) : 'percentage';
-		$amount_value   = isset( $_POST['amount_value'] ) ? sanitize_text_field( wp_unslash( $_POST['amount_value'] ) ) : '0';
-		$start_date     = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
-		$expiry_date    = isset( $_POST['expiry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['expiry_date'] ) ) : '';
-		$usage_limit    = isset( $_POST['usage_limit'] ) ? intval( $_POST['usage_limit'] ) : 1;
-		$is_stackable   = isset( $_POST['is_stackable'] ) ? intval( $_POST['is_stackable'] ) : 0;
-		$quantity       = isset( $_POST['quantity'] ) ? intval( $_POST['quantity'] ) : 1;
+		$form_id       = isset( $_POST['form_id'] ) ? intval( $_POST['form_id'] ) : 0;
+		$coupon_prefix = isset( $_POST['coupon_prefix'] ) ? sanitize_text_field( wp_unslash( $_POST['coupon_prefix'] ) ) : '';
+		$coupon_length = isset( $_POST['coupon_length'] ) ? intval( $_POST['coupon_length'] ) : 8;
+		$amount_type   = isset( $_POST['amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['amount_type'] ) ) : 'percentage';
+		$amount_value  = isset( $_POST['amount_value'] ) ? sanitize_text_field( wp_unslash( $_POST['amount_value'] ) ) : '0';
+		$start_date    = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
+		$expiry_date   = isset( $_POST['expiry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['expiry_date'] ) ) : '';
+		$usage_limit   = isset( $_POST['usage_limit'] ) ? intval( $_POST['usage_limit'] ) : 1;
+		$is_stackable  = isset( $_POST['is_stackable'] ) ? intval( $_POST['is_stackable'] ) : 0;
+		$quantity      = isset( $_POST['quantity'] ) ? intval( $_POST['quantity'] ) : 1;
 
 		// Validate inputs.
 		if ( empty( $form_id ) ) {
@@ -233,26 +235,26 @@ class GF_Coupon_Generator {
 
 			// Prepare meta data - match the exact structure GF Coupons expects.
 			$meta = array(
-				'gravityForm'       => $form_id,
-				'couponName'        => $coupon_name,
-				'couponCode'        => $coupon_code,
-				'couponAmountType'  => $amount_type,
-				'couponAmount'      => $amount_display,
-				'startDate'         => $start_date,
-				'endDate'           => $expiry_date, // Always include endDate field, even if empty.
-				'usageLimit'        => (string) $usage_limit, // Convert to string to match GF format.
-				'isStackable'       => (string) $is_stackable, // Convert to string to match GF format.
+				'gravityForm'      => $form_id,
+				'couponName'       => $coupon_name,
+				'couponCode'       => $coupon_code,
+				'couponAmountType' => $amount_type,
+				'couponAmount'     => $amount_display,
+				'startDate'        => $start_date,
+				'endDate'          => $expiry_date, // Always include endDate field, even if empty.
+				'usageLimit'       => (string) $usage_limit, // Convert to string to match GF format.
+				'isStackable'      => (string) $is_stackable, // Convert to string to match GF format.
 			);
 
 			// Insert into database.
 			$inserted = $wpdb->insert(
 				$wpdb->prefix . 'gf_addon_feed',
 				array(
-					'form_id'     => $form_id,
-					'is_active'   => 1,
-					'feed_order'  => 0,
-					'meta'        => wp_json_encode( $meta ),
-					'addon_slug'  => 'gravityformscoupons',
+					'form_id'    => $form_id,
+					'is_active'  => 1,
+					'feed_order' => 0,
+					'meta'       => wp_json_encode( $meta ),
+					'addon_slug' => 'gravityformscoupons',
 				)
 			);
 
@@ -260,8 +262,8 @@ class GF_Coupon_Generator {
 				$feed_id = $wpdb->insert_id;
 
 				// Now update the name with the ID.
-				$updated_name         = "Coupon - #{$feed_id}";
-				$meta['couponName']   = $updated_name;
+				$updated_name       = "Coupon - #{$feed_id}";
+				$meta['couponName'] = $updated_name;
 
 				// Update the record with the new name.
 				$wpdb->update(
@@ -310,8 +312,8 @@ class GF_Coupon_Generator {
 			wp_send_json_error( 'Permission denied' );
 		}
 
-		$csv_content    = isset( $_POST['csv_content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['csv_content'] ) ) : '';
-		$update_action  = isset( $_POST['update_action'] ) ? sanitize_text_field( wp_unslash( $_POST['update_action'] ) ) : '';
+		$csv_content   = isset( $_POST['csv_content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['csv_content'] ) ) : '';
+		$update_action = isset( $_POST['update_action'] ) ? sanitize_text_field( wp_unslash( $_POST['update_action'] ) ) : '';
 
 		if ( empty( $csv_content ) || empty( $update_action ) ) {
 			wp_send_json_error( 'Missing required parameters' );
@@ -449,29 +451,29 @@ class GF_Coupon_Generator {
 						$meta['couponAmountType'] = $update_params['amount_type'];
 						$meta['couponAmount']     = ( 'flat' === $update_params['amount_type'] ) ?
 							'$' . $update_params['amount_value'] : $update_params['amount_value'];
-						$updated = true;
+						$updated                  = true;
 					}
 					break;
 
 				case 'dates':
 					if ( ! empty( $update_params['start_date'] ) ) {
 						$meta['startDate'] = $update_params['start_date'];
-						$updated = true;
+						$updated           = true;
 					}
 					if ( isset( $update_params['expiry_date'] ) ) {
 						$meta['endDate'] = $update_params['expiry_date'];
-						$updated = true;
+						$updated         = true;
 					}
 					break;
 
 				case 'usage':
 					$meta['usageLimit'] = (string) $update_params['usage_limit'];
-					$updated = true;
+					$updated            = true;
 					break;
 
 				case 'stackable':
 					$meta['isStackable'] = (string) $update_params['is_stackable'];
-					$updated = true;
+					$updated             = true;
 					break;
 
 				case 'activate':
@@ -528,4 +530,4 @@ function gf_coupon_generator_init() {
 }
 
 // Start the plugin.
-gf_coupon_generator_init(); 
+gf_coupon_generator_init();
