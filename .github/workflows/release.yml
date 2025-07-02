@@ -1,0 +1,83 @@
+name: Create Plugin Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: zip
+          
+      - name: Install Composer dependencies (production only)
+        run: |
+          if [ -f composer.json ]; then
+            composer install --no-dev --optimize-autoloader --no-interaction
+          fi
+          
+      - name: Build plugin package
+        run: |
+          # Create build directory
+          mkdir -p build/coupon-import
+          
+          # Copy production files
+          cp -r assets build/coupon-import/
+          cp -r views build/coupon-import/
+          cp -r vendor build/coupon-import/ 2>/dev/null || true
+          cp gf-coupon-generator.php build/coupon-import/
+          cp README.md build/coupon-import/
+          
+          # Create the plugin zip
+          cd build
+          zip -r coupon-import-plugin.zip coupon-import/
+          
+      - name: Get tag name
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
+          release_name: Coupon Import Plugin ${{ steps.get_tag.outputs.TAG_NAME }}
+          body: |
+            ## Coupon Import Plugin ${{ steps.get_tag.outputs.TAG_NAME }}
+            
+            ### Installation
+            1. Download the `coupon-import-plugin.zip` file below
+            2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
+            3. Choose the downloaded zip file and install
+            4. Activate the plugin
+            
+            ### Changes
+            See the commit history for detailed changes in this release.
+            
+            ### Requirements
+            - WordPress 5.0+
+            - Gravity Forms plugin
+            - PHP 7.4+
+          draft: false
+          prerelease: false
+          
+      - name: Upload Plugin Package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/coupon-import-plugin.zip
+          asset_name: coupon-import-plugin.zip
+          asset_content_type: application/zip 

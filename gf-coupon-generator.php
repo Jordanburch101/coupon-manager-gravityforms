@@ -221,7 +221,7 @@ class GF_Coupon_Generator {
 	) {
 		global $wpdb;
 
-		// Validate required parameters to prevent NULL database errors
+		// Validate required parameters to prevent NULL database errors.
 		if ( empty( $form_id ) || ! is_numeric( $form_id ) ) {
 			return array(
 				'success' => 0,
@@ -231,10 +231,10 @@ class GF_Coupon_Generator {
 			);
 		}
 
-		// Ensure coupon_prefix is a string (can be empty)
+		// Ensure coupon_prefix is a string (can be empty).
 		$coupon_prefix = (string) $coupon_prefix;
 
-		// Validate amount_type and amount_value
+		// Validate amount_type and amount_value.
 		if ( ! in_array( $amount_type, array( 'percentage', 'flat' ), true ) ) {
 			$amount_type = 'percentage';
 		}
@@ -243,7 +243,7 @@ class GF_Coupon_Generator {
 			$amount_value = '0';
 		}
 
-		// Ensure usage_limit and is_stackable are integers
+		// Ensure usage_limit and is_stackable are integers.
 		$usage_limit  = max( 1, intval( $usage_limit ) );
 		$is_stackable = intval( $is_stackable );
 
@@ -277,7 +277,7 @@ class GF_Coupon_Generator {
 				'isStackable'      => (string) $is_stackable, // Convert to string to match GF format.
 			);
 
-			// Validate all required fields before database insertion
+			// Validate all required fields before database insertion.
 			$insert_data = array(
 				'form_id'    => intval( $form_id ),
 				'is_active'  => 1,
@@ -286,10 +286,10 @@ class GF_Coupon_Generator {
 				'addon_slug' => 'gravityformscoupons',
 			);
 
-			// Validate all required fields before database insertion
+			// Validate all required fields before database insertion.
 			if ( ! $this->validate_insert_data( $insert_data, array( 'form_id', 'is_active', 'meta', 'addon_slug' ) ) ) {
 				++$results['failed'];
-				continue; // Skip to next coupon iteration
+				continue; // Skip to next coupon iteration.
 			}
 
 			// Insert into database.
@@ -538,9 +538,9 @@ class GF_Coupon_Generator {
 
 				case 'activate':
 				case 'deactivate':
-					// Validate the is_active value before update
+					// Validate the is_active value before update.
 					$is_active_value = isset( $update_params['is_active'] ) ? intval( $update_params['is_active'] ) : 1;
-					
+
 					// Update is_active field directly.
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$update_result = $wpdb->update(
@@ -561,10 +561,10 @@ class GF_Coupon_Generator {
 
 			// Save updated meta.
 			if ( $updated ) {
-				// Validate meta data before update
+				// Validate meta data before update.
 				$encoded_meta = wp_json_encode( $meta );
 				if ( false === $encoded_meta || null === $encoded_meta || '' === $encoded_meta ) {
-					$result['message'] = 'Failed to encode coupon meta data';
+					$result['message']    = 'Failed to encode coupon meta data';
 					$results['results'][] = $result;
 					continue;
 				}
