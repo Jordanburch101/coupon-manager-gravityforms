@@ -1,14 +1,15 @@
 <?php
 /**
- * Plugin Name: GravityForms Coupon Generator
- * Description: Bulk generate coupons for GravityForms Coupons addon
+ * Plugin Name: GravityForms Coupon Manager
+ * Description: Bulk generate and manage coupons for GravityForms Coupons Add-On
  * Version: 1.0.0
  * Author: Jordan Burch
  * Author URI: https://github.com/Jordanburch101
- * Text Domain: gf-coupon-generator
- * Package: GF_Coupon_Generator
+ * Text Domain: gf-coupon-manager
+ * Package: GF_Coupon_Manager
+ * Requires Plugins: gravityforms, gravityformscoupons
  *
- * @package GF_Coupon_Generator
+ * @package GF_Coupon_Manager
  */
 
 // Exit if accessed directly.
@@ -22,7 +23,7 @@ define( 'GF_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Main plugin class for GravityForms Coupon Generator.
+ * Main plugin class for GravityForms Coupon Manager.
  */
 class GF_Coupon_Generator {
 
@@ -78,7 +79,7 @@ class GF_Coupon_Generator {
 	public function admin_notice_missing_gf() {
 		?>
 		<div class="notice notice-error">
-			<p><?php esc_html_e( 'GF Coupon Generator requires both GravityForms and GravityForms Coupons addon to be installed and activated.', 'gf-coupon-generator' ); ?></p>
+			<p><?php esc_html_e( 'GravityForms Coupon Manager requires both Gravity Forms and Gravity Forms Coupons Add-On to be installed and activated.', 'gf-coupon-manager' ); ?></p>
 		</div>
 		<?php
 	}
@@ -92,7 +93,7 @@ class GF_Coupon_Generator {
 	public function add_menu_item( $menus ) {
 		$menus[] = array(
 			'name'       => 'gf_coupon_generator',
-			'label'      => __( 'Coupon Generator', 'gf-coupon-generator' ),
+			'label'      => __( 'Coupon Manager', 'gf-coupon-manager' ),
 			'callback'   => array( $this, 'render_admin_page' ),
 			'permission' => 'gravityforms_edit_forms',
 		);

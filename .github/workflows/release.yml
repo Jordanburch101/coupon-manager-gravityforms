@@ -30,18 +30,18 @@ jobs:
       - name: Build plugin package
         run: |
           # Create build directory
-          mkdir -p build/coupon-import
+          mkdir -p build/coupon-manager
           
           # Copy production files
-          cp -r assets build/coupon-import/
-          cp -r views build/coupon-import/
-          cp -r vendor build/coupon-import/ 2>/dev/null || true
-          cp gf-coupon-generator.php build/coupon-import/
-          cp README.md build/coupon-import/
+          cp -r assets build/coupon-manager/
+          cp -r views build/coupon-manager/
+          cp -r vendor build/coupon-manager/ 2>/dev/null || true
+          cp gf-coupon-generator.php build/coupon-manager/
+          cp README.md build/coupon-manager/
           
           # Create the plugin zip
           cd build
-          zip -r coupon-import-plugin.zip coupon-import/
+          zip -r coupon-manager-plugin.zip coupon-manager/
           
       - name: Get tag name
         id: get_tag
@@ -53,11 +53,11 @@ jobs:
         run: |
           # Create the release with the plugin package attached
           gh release create ${{ steps.get_tag.outputs.TAG_NAME }} \
-            --title "Coupon Import Plugin ${{ steps.get_tag.outputs.TAG_NAME }}" \
-            --notes "## Coupon Import Plugin ${{ steps.get_tag.outputs.TAG_NAME }}
+            --title "GravityForms Coupon Manager ${{ steps.get_tag.outputs.TAG_NAME }}" \
+            --notes "## GravityForms Coupon Manager ${{ steps.get_tag.outputs.TAG_NAME }}
 
           ### Installation
-          1. Download the \`coupon-import-plugin.zip\` file below
+          1. Download the \`coupon-manager-plugin.zip\` file below
           2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
           3. Choose the downloaded zip file and install
           4. Activate the plugin
@@ -68,5 +68,6 @@ jobs:
           ### Requirements
           - WordPress 5.0+
           - Gravity Forms plugin
+          - Gravity Forms Coupons Add-On
           - PHP 8.1+" \
-            ./build/coupon-import-plugin.zip 
+            ./build/coupon-manager-plugin.zip 

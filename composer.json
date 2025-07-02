@@ -1,6 +1,6 @@
 {
-    "name": "your-vendor/gf-coupon-generator",
-    "description": "Bulk generate coupons for GravityForms Coupons addon",
+    "name": "your-vendor/gf-coupon-manager",
+    "description": "Bulk generate and manage coupons for Gravity Forms Coupons Add-On",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "GFCouponGenerator\\": "src/"
+            "GFCouponManager\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "GFCouponGenerator\\Tests\\": "tests/"
+            "GFCouponManager\\Tests\\": "tests/"
         }
     },
     "scripts": {

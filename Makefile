@@ -1,4 +1,4 @@
-# GF Coupon Generator - Makefile
+# GravityForms Coupon Manager - Makefile
 # Provides convenient commands for building and managing the plugin
 
 .PHONY: build clean test help install-deps lint
@@ -7,7 +7,7 @@
 .DEFAULT_GOAL := help
 
 # Plugin configuration
-PLUGIN_NAME = gf-coupon-generator
+PLUGIN_NAME = gf-coupon-manager
 BUILD_DIR = build
 VERSION := $(shell grep "Version:" gf-coupon-generator.php | sed 's/.*Version: \([0-9.]*\).*/\1/')
 
@@ -18,8 +18,8 @@ YELLOW = \033[1;33m
 NC = \033[0m
 
 help: ## Show this help message
-	@echo "$(BLUE)GF Coupon Generator - Available Commands$(NC)"
-	@echo "========================================"
+	@echo "$(BLUE)GravityForms Coupon Manager - Available Commands$(NC)"
+	@echo "================================================="
 	@echo ""
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "$(GREEN)%-15s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 

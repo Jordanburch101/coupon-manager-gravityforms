@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# GF Coupon Generator - Build Script
+# GravityForms Coupon Manager - Build Script
 # Creates a production-ready zip file with only necessary plugin files
 
 set -e  # Exit on any error
 
 # Script configuration
-PLUGIN_NAME="gf-coupon-generator"
+PLUGIN_NAME="gf-coupon-manager"
 VERSION=$(grep "Version:" gf-coupon-generator.php | sed 's/.*Version: \([0-9.]*\).*/\1/')
 BUILD_DIR="build"
 DIST_DIR="$BUILD_DIR/$PLUGIN_NAME"
@@ -115,7 +115,7 @@ create_zip() {
 show_summary() {
     print_success "Build completed successfully!"
     echo ""
-    echo "📦 Plugin: $PLUGIN_NAME"
+    echo "📦 Plugin: GravityForms Coupon Manager"
     echo "🏷️  Version: $VERSION"
     echo "📁 Build directory: $BUILD_DIR"
     echo "🗜️  Zip file: $ZIP_FILE"
@@ -176,8 +176,8 @@ validate_build() {
 
 # Main execution
 main() {
-    echo "🔨 Building GF Coupon Generator Plugin"
-    echo "======================================"
+    echo "🔨 Building GravityForms Coupon Manager Plugin"
+    echo "=============================================="
     echo ""
     
     check_directory
