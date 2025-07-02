@@ -1,6 +1,6 @@
 # Release Guide
 
-This document explains how to create releases for the Coupon Import Plugin.
+This document explains how to create releases for the Coupon Manager Plugin.
 
 ## Automated Release Process
 
