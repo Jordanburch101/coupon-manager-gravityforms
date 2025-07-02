@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Coupon Manager for GravityForms
  * Description: Bulk generate and manage coupons for GravityForms Coupons Add-On
- * Version: 1.0.0
+ * Version: 0.0.4
  * Author: Jordan Burch
  * Author URI: https://github.com/Jordanburch101
  * Text Domain: coupon-manager

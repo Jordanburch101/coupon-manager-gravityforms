@@ -1,7 +1,7 @@
 # Coupon Manager for GravityForms - Makefile
 # Provides convenient commands for building and managing the plugin
 
-.PHONY: build clean test help install-deps lint
+.PHONY: build clean test help install-deps lint release-patch release-minor release-major update-version
 
 # Default target
 .DEFAULT_GOAL := help
@@ -93,8 +93,29 @@ dev-setup: install-deps install-wp-tests ## Complete development environment set
 release: clean build ## Clean and build for release
 	@echo "$(GREEN)Release build completed for v$(VERSION)$(NC)"
 
+release-patch: ## Create a new patch release (x.x.X)
+	@echo "$(BLUE)Creating patch release...$(NC)"
+	@./create-release.sh patch
+
+release-minor: ## Create a new minor release (x.X.0)
+	@echo "$(BLUE)Creating minor release...$(NC)"
+	@./create-release.sh minor
+
+release-major: ## Create a new major release (X.0.0)
+	@echo "$(BLUE)Creating major release...$(NC)"
+	@./create-release.sh major
+
 version: ## Show current plugin version
 	@echo "$(BLUE)Current version: $(GREEN)$(VERSION)$(NC)"
+
+update-version: ## Update version in plugin files (usage: make update-version VERSION=1.2.3)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "$(YELLOW)Usage: make update-version VERSION=1.2.3$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Updating version to $(VERSION)...$(NC)"
+	@./update-version.sh $(VERSION)
+	@echo "$(GREEN)Version updated to $(VERSION)$(NC)"
 
 size: ## Show build size information
 	@if [ -f "$(BUILD_DIR)/$(PLUGIN_NAME)-v$(VERSION).zip" ]; then \

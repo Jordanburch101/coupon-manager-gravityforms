@@ -1,6 +1,17 @@
 name: Create Plugin Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version increment type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
   push:
     tags:
       - 'v*'
@@ -14,12 +25,91 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
         
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           extensions: zip
+          
+      - name: Determine next version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Get the latest tag
+            LATEST_TAG=$(git tag --sort=-version:refname | head -n 1)
+            echo "Latest tag: $LATEST_TAG"
+            
+            if [ -z "$LATEST_TAG" ]; then
+              # No tags exist, start with v0.0.1
+              NEW_VERSION="v0.0.1"
+              NEW_VERSION_NUM="0.0.1"
+            else
+              # Remove 'v' prefix and split version
+              VERSION_NUM=${LATEST_TAG#v}
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NUM"
+              
+              # Increment based on input
+              case "${{ github.event.inputs.version_type }}" in
+                "major")
+                  MAJOR=$((MAJOR + 1))
+                  MINOR=0
+                  PATCH=0
+                  ;;
+                "minor")
+                  MINOR=$((MINOR + 1))
+                  PATCH=0
+                  ;;
+                "patch")
+                  PATCH=$((PATCH + 1))
+                  ;;
+              esac
+              
+              NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+              NEW_VERSION_NUM="${MAJOR}.${MINOR}.${PATCH}"
+            fi
+            
+            echo "New version: $NEW_VERSION"
+            echo "VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "VERSION_NUM=$NEW_VERSION_NUM" >> $GITHUB_OUTPUT
+            
+            # Update version in plugin files
+            echo "Updating version references in plugin files..."
+            
+            # Update plugin header version
+            if [ -f "gf-coupon-generator.php" ]; then
+              CURRENT_VERSION=$(grep "Version:" gf-coupon-generator.php | sed 's/.*Version: \([0-9.]*\).*/\1/')
+              echo "  Updating plugin header: $CURRENT_VERSION → $NEW_VERSION_NUM"
+              sed -i "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION_NUM/" gf-coupon-generator.php
+            fi
+            
+            # Update readme.txt stable tag
+            if [ -f "readme.txt" ]; then
+              CURRENT_STABLE=$(grep "Stable tag:" readme.txt | sed 's/.*Stable tag: \([0-9.]*\).*/\1/')
+              echo "  Updating readme.txt stable tag: $CURRENT_STABLE → $NEW_VERSION_NUM"
+              sed -i "s/Stable tag: $CURRENT_STABLE/Stable tag: $NEW_VERSION_NUM/" readme.txt
+            fi
+            
+            # Commit version updates if any files were modified
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "Committing version updates..."
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git add gf-coupon-generator.php readme.txt
+              git commit -m "Update version to $NEW_VERSION_NUM"
+              git push origin main
+            fi
+            
+            # Create and push the new tag
+            git tag "$NEW_VERSION"
+            git push origin "$NEW_VERSION"
+          else
+            # Triggered by tag push, use the tag name
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            echo "VERSION=$TAG_NAME" >> $GITHUB_OUTPUT
+          fi
           
       - name: Install Composer dependencies (production only)
         run: |
@@ -35,27 +125,24 @@ jobs:
           # Copy production files
           cp -r assets build/coupon-manager/
           cp -r views build/coupon-manager/
-                                  # Note: vendor and composer.json excluded (contain only dev dependencies)
-            cp gf-coupon-generator.php build/coupon-manager/
-            cp README.md build/coupon-manager/
-            cp readme.txt build/coupon-manager/
+          # Note: vendor and composer.json excluded (contain only dev dependencies)
+          cp gf-coupon-generator.php build/coupon-manager/
+          cp README.md build/coupon-manager/
+          cp readme.txt build/coupon-manager/
+          cp gpl-3.0.txt build/coupon-manager/
           
           # Create the plugin zip
           cd build
           zip -r coupon-manager-plugin.zip coupon-manager/
           
-      - name: Get tag name
-        id: get_tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-        
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create the release with the plugin package attached
-          gh release create ${{ steps.get_tag.outputs.TAG_NAME }} \
-                      --title "Coupon Manager for GravityForms ${{ steps.get_tag.outputs.TAG_NAME }}" \
-          --notes "## Coupon Manager for GravityForms ${{ steps.get_tag.outputs.TAG_NAME }}
+          gh release create ${{ steps.version.outputs.VERSION }} \
+            --title "Coupon Manager for GravityForms ${{ steps.version.outputs.VERSION }}" \
+            --notes "## Coupon Manager for GravityForms ${{ steps.version.outputs.VERSION }}
 
           ### Installation
           1. Download the \`coupon-manager-plugin.zip\` file below
