@@ -1,6 +1,6 @@
 {
-    "name": "your-vendor/gf-coupon-manager",
-    "description": "Bulk generate and manage coupons for Gravity Forms Coupons Add-On",
+    "name": "your-vendor/coupon-manager",
+    "description": "Coupon Manager for GravityForms - Bulk generate and manage coupons for Gravity Forms Coupons Add-On",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [

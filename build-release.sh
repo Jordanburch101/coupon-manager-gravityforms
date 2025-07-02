@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🔨 Building GravityForms Coupon Manager Release Package..."
+echo "🔨 Building Coupon Manager for GravityForms Release Package..."
 
 # Clean up any existing build
 rm -rf build/
@@ -20,12 +20,10 @@ cp -r assets build/coupon-manager/
 cp -r views build/coupon-manager/
 cp gf-coupon-generator.php build/coupon-manager/
 cp README.md build/coupon-manager/
+cp readme.txt build/coupon-manager/
 
-# Copy vendor if it exists (production dependencies only)
-if [ -d "vendor" ]; then
-    echo "📦 Including vendor dependencies..."
-    cp -r vendor build/coupon-manager/
-fi
+# Note: composer.json and vendor directory are excluded as they contain only development dependencies
+# The plugin has no runtime Composer dependencies and is self-contained
 
 echo "🗜️  Creating plugin zip..."
 

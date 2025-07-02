@@ -220,9 +220,10 @@ jobs:
           # Copy production files
           cp -r assets build/coupon-manager/
           cp -r views build/coupon-manager/
-          cp -r vendor build/coupon-manager/ 2>/dev/null || true
-          cp gf-coupon-generator.php build/coupon-manager/
-          cp README.md build/coupon-manager/
+                                  # Note: vendor and composer.json excluded (contain only dev dependencies)
+            cp gf-coupon-generator.php build/coupon-manager/
+            cp README.md build/coupon-manager/
+            cp readme.txt build/coupon-manager/
           
           # Create the plugin zip
           cd build
@@ -258,8 +259,8 @@ jobs:
         run: |
           # Create the release with the plugin package attached
           gh release create ${{ steps.version.outputs.version }} \
-            --title "GravityForms Coupon Manager ${{ steps.version.outputs.version }}" \
-            --notes "## GravityForms Coupon Manager ${{ steps.version.outputs.version }}
+                      --title "Coupon Manager for GravityForms ${{ steps.version.outputs.version }}" \
+          --notes "## Coupon Manager for GravityForms ${{ steps.version.outputs.version }}
 
           **✅ Tests Passed | ✅ Linting Clean**
 

@@ -1,13 +1,28 @@
 <?php
 /**
- * Plugin Name: GravityForms Coupon Manager
+ * Plugin Name: Coupon Manager for GravityForms
  * Description: Bulk generate and manage coupons for GravityForms Coupons Add-On
  * Version: 1.0.0
  * Author: Jordan Burch
  * Author URI: https://github.com/Jordanburch101
- * Text Domain: gf-coupon-manager
+ * Text Domain: coupon-manager
  * Package: GF_Coupon_Manager
  * Requires Plugins: gravityforms, gravityformscoupons
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  * @package GF_Coupon_Manager
  */
@@ -23,7 +38,7 @@ define( 'GF_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GF_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Main plugin class for GravityForms Coupon Manager.
+ * Main plugin class for Coupon Manager for GravityForms.
  */
 class GF_Coupon_Generator {
 
@@ -79,7 +94,7 @@ class GF_Coupon_Generator {
 	public function admin_notice_missing_gf() {
 		?>
 		<div class="notice notice-error">
-			<p><?php esc_html_e( 'GravityForms Coupon Manager requires both Gravity Forms and Gravity Forms Coupons Add-On to be installed and activated.', 'gf-coupon-manager' ); ?></p>
+			<p><?php esc_html_e( 'Coupon Manager for GravityForms requires both Gravity Forms and Gravity Forms Coupons Add-On to be installed and activated.', 'coupon-manager' ); ?></p>
 		</div>
 		<?php
 	}
@@ -93,7 +108,7 @@ class GF_Coupon_Generator {
 	public function add_menu_item( $menus ) {
 		$menus[] = array(
 			'name'       => 'gf_coupon_generator',
-			'label'      => __( 'Coupon Manager', 'gf-coupon-manager' ),
+			'label'      => __( 'Coupon Manager', 'coupon-manager' ),
 			'callback'   => array( $this, 'render_admin_page' ),
 			'permission' => 'manage_options',
 		);
@@ -150,29 +165,12 @@ class GF_Coupon_Generator {
 	 * Handle AJAX request for generating coupons.
 	 */
 	public function generate_coupons_ajax() {
-		// Add debug logging.
-		error_log( 'GF Coupon Manager: AJAX request received' );
-
 		check_ajax_referer( 'gf_coupon_generator_nonce', 'nonce' );
-		error_log( 'GF Coupon Manager: Nonce verification passed' );
-
-		// Debug: Log current user capabilities.
-		$current_user = wp_get_current_user();
-		error_log( 'GF Coupon Manager: Current user ID: ' . $current_user->ID );
-		error_log( 'GF Coupon Manager: Current user roles: ' . implode( ', ', $current_user->roles ) );
-		error_log( 'GF Coupon Manager: Has gravityforms_edit_forms capability: ' . ( current_user_can( 'gravityforms_edit_forms' ) ? 'YES' : 'NO' ) );
-
-		// Check for GF classes.
-		error_log( 'GF Coupon Manager: GFForms exists: ' . ( class_exists( 'GFForms' ) ? 'YES' : 'NO' ) );
-		error_log( 'GF Coupon Manager: GFCoupons exists: ' . ( class_exists( 'GFCoupons' ) ? 'YES' : 'NO' ) );
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		if ( ! current_user_can( 'manage_options' ) ) {
-			error_log( 'GF Coupon Manager: Permission denied for user ' . $current_user->ID );
 			wp_send_json_error( 'Permission denied' );
 		}
-
-		error_log( 'GF Coupon Manager: Permission check passed, processing form data' );
 
 		$form_id       = isset( $_POST['form_id'] ) ? intval( $_POST['form_id'] ) : 0;
 		$coupon_prefix = isset( $_POST['coupon_prefix'] ) ? sanitize_text_field( wp_unslash( $_POST['coupon_prefix'] ) ) : '';
@@ -185,20 +183,14 @@ class GF_Coupon_Generator {
 		$is_stackable  = isset( $_POST['is_stackable'] ) ? intval( $_POST['is_stackable'] ) : 0;
 		$quantity      = isset( $_POST['quantity'] ) ? intval( $_POST['quantity'] ) : 1;
 
-		error_log( 'GF Coupon Manager: Form data - Form ID: ' . $form_id . ', Quantity: ' . $quantity );
-
 		// Validate inputs.
 		if ( empty( $form_id ) ) {
-			error_log( 'GF Coupon Manager: Form ID validation failed' );
 			wp_send_json_error( 'Form ID is required' );
 		}
 
 		if ( 1 > $quantity || 1000 < $quantity ) {
-			error_log( 'GF Coupon Manager: Quantity validation failed: ' . $quantity );
 			wp_send_json_error( 'Quantity must be between 1 and 1000' );
 		}
-
-		error_log( 'GF Coupon Manager: Calling generate_coupons method' );
 
 		$results = $this->generate_coupons(
 			$form_id,
@@ -212,8 +204,6 @@ class GF_Coupon_Generator {
 			$is_stackable,
 			$quantity
 		);
-
-		error_log( 'GF Coupon Manager: generate_coupons returned: ' . wp_json_encode( $results ) );
 
 		wp_send_json_success( $results );
 	}
@@ -247,11 +237,8 @@ class GF_Coupon_Generator {
 	) {
 		global $wpdb;
 
-		error_log( 'GF Coupon Manager: generate_coupons method started with form_id: ' . $form_id . ', quantity: ' . $quantity );
-
 		// Validate required parameters to prevent NULL database errors.
 		if ( empty( $form_id ) || ! is_numeric( $form_id ) ) {
-			error_log( 'GF Coupon Manager: Invalid form_id: ' . $form_id );
 			return array(
 				'success' => 0,
 				'failed'  => $quantity,
@@ -282,16 +269,10 @@ class GF_Coupon_Generator {
 			'coupons' => array(),
 		);
 
-		error_log( 'GF Coupon Manager: Starting coupon generation loop for ' . $quantity . ' coupons' );
-
 		for ( $i = 0; $i < $quantity; $i++ ) {
-			error_log( 'GF Coupon Manager: Generating coupon ' . ( $i + 1 ) . ' of ' . $quantity );
-
 			// Generate coupon code.
 			$random_part = $this->generate_random_code( $coupon_length );
 			$coupon_code = $coupon_prefix . $random_part;
-
-			error_log( 'GF Coupon Manager: Generated coupon code: ' . $coupon_code );
 
 			// Initial coupon name - will be updated after insertion.
 			$coupon_name = 'Coupon';
@@ -323,12 +304,9 @@ class GF_Coupon_Generator {
 
 			// Validate all required fields before database insertion.
 			if ( ! $this->validate_insert_data( $insert_data, array( 'form_id', 'is_active', 'meta', 'addon_slug' ) ) ) {
-				error_log( 'GF Coupon Manager: Validation failed for coupon ' . $coupon_code );
 				++$results['failed'];
 				continue; // Skip to next coupon iteration.
 			}
-
-			error_log( 'GF Coupon Manager: Inserting coupon into database: ' . $coupon_code );
 
 			// Insert into database.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -339,7 +317,6 @@ class GF_Coupon_Generator {
 
 			if ( $inserted ) {
 				$feed_id = $wpdb->insert_id;
-				error_log( 'GF Coupon Manager: Coupon inserted successfully with ID: ' . $feed_id );
 
 				// Now update the name with the ID.
 				$updated_name       = "Coupon - #{$feed_id}";
@@ -359,12 +336,9 @@ class GF_Coupon_Generator {
 					'coupon_code' => $coupon_code,
 				);
 			} else {
-				error_log( 'GF Coupon Manager: Database insert failed for coupon: ' . $coupon_code . '. Error: ' . $wpdb->last_error );
 				++$results['failed'];
 			}
 		}
-
-		error_log( 'GF Coupon Manager: Coupon generation completed. Success: ' . $results['success'] . ', Failed: ' . $results['failed'] );
 
 		return $results;
 	}
@@ -523,8 +497,8 @@ class GF_Coupon_Generator {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$coupon = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM {$wpdb->prefix}gf_addon_feed 
-					WHERE addon_slug = 'gravityformscoupons' 
+					"SELECT * FROM {$wpdb->prefix}gf_addon_feed
+					WHERE addon_slug = 'gravityformscoupons'
 					AND meta LIKE %s",
 					'%"couponCode":"' . $wpdb->esc_like( $coupon_code ) . '"%'
 				)

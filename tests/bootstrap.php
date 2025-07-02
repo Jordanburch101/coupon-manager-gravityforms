@@ -33,7 +33,7 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
     // First, we need to mock GravityForms classes since they're premium
     require_once dirname(__DIR__) . '/tests/mocks/class-gf-mocks.php';
-    
+
     // Load our plugin
     require dirname(__DIR__) . '/gf-coupon-generator.php';
 }
@@ -44,4 +44,4 @@ tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 require $_tests_dir . '/includes/bootstrap.php';
 
 // Include our test case classes
-require_once dirname(__FILE__) . '/class-gf-coupon-test-case.php'; 
+require_once dirname(__FILE__) . '/class-gf-coupon-test-case.php';

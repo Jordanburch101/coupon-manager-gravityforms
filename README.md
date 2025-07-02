@@ -1,4 +1,4 @@
-# GravityForms Coupon Manager
+# Coupon Manager for GravityForms
 
 A WordPress plugin that allows bulk generation and updating of coupons for the Gravity Forms Coupons Add-On.
 
@@ -32,7 +32,7 @@ A WordPress plugin that allows bulk generation and updating of coupons for the G
 
 ## Installation
 
-1. Upload the plugin files to `/wp-content/plugins/gf-coupon-manager/`
+1. Upload the plugin files to `/wp-content/plugins/coupon-manager/`
 2. Activate the plugin through the WordPress admin
 3. Navigate to Forms > Coupon Manager in the admin menu
 

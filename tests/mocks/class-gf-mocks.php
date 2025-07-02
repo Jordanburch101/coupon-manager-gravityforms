@@ -8,7 +8,7 @@
 if (!class_exists('GFForms')) {
     class GFForms {
         public static $version = '2.7.0';
-        
+
         public static function get_page() {
             return isset($_GET['page']) ? $_GET['page'] : '';
         }
@@ -20,26 +20,26 @@ if (!class_exists('GFCoupons')) {
     class GFCoupons {
         public static $version = '3.2.0';
         private static $instance = null;
-        
+
         public static function get_instance() {
             if (self::$instance == null) {
                 self::$instance = new self();
             }
             return self::$instance;
         }
-        
+
         public function get_feeds($form_id = null) {
             global $wpdb;
-            
+
             $where = "addon_slug = 'gravityformscoupons' AND is_active = 1";
             if ($form_id) {
                 $where .= $wpdb->prepare(" AND form_id = %d", $form_id);
             }
-            
+
             $results = $wpdb->get_results(
                 "SELECT * FROM {$wpdb->prefix}gf_addon_feed WHERE {$where}"
             );
-            
+
             $feeds = array();
             foreach ($results as $result) {
                 $feed = array(
@@ -50,7 +50,7 @@ if (!class_exists('GFCoupons')) {
                 );
                 $feeds[] = $feed;
             }
-            
+
             return $feeds;
         }
     }
@@ -74,7 +74,7 @@ if (!class_exists('GFAPI')) {
                 )
             );
         }
-        
+
         public static function get_form($form_id) {
             $forms = self::get_forms();
             foreach ($forms as $form) {
@@ -85,4 +85,4 @@ if (!class_exists('GFAPI')) {
             return false;
         }
     }
-} 
+}

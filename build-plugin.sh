@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# GravityForms Coupon Manager - Build Script
+# Coupon Manager for GravityForms - Build Script
 # Creates a production-ready zip file with only necessary plugin files
 
 set -e  # Exit on any error
 
 # Script configuration
-PLUGIN_NAME="gf-coupon-manager"
+PLUGIN_NAME="coupon-manager"
 VERSION=$(grep "Version:" gf-coupon-generator.php | sed 's/.*Version: \([0-9.]*\).*/\1/')
 BUILD_DIR="build"
 DIST_DIR="$BUILD_DIR/$PLUGIN_NAME"
@@ -65,6 +65,7 @@ copy_files() {
     # Core plugin files
     cp gf-coupon-generator.php "$DIST_DIR/"
     cp README.md "$DIST_DIR/"
+    cp readme.txt "$DIST_DIR/"
     
     # Assets directory (CSS and JS)
     if [[ -d "assets" ]]; then
@@ -78,11 +79,7 @@ copy_files() {
         print_status "Copied views directory"
     fi
     
-    # Composer.json (for dependency management info, but not vendor)
-    if [[ -f "composer.json" ]]; then
-        cp composer.json "$DIST_DIR/"
-        print_status "Copied composer.json"
-    fi
+    # Note: composer.json excluded - contains only development dependencies
     
     print_success "Core files copied successfully"
 }
@@ -115,7 +112,7 @@ create_zip() {
 show_summary() {
     print_success "Build completed successfully!"
     echo ""
-    echo "📦 Plugin: GravityForms Coupon Manager"
+    echo "📦 Plugin: Coupon Manager for GravityForms"
     echo "🏷️  Version: $VERSION"
     echo "📁 Build directory: $BUILD_DIR"
     echo "🗜️  Zip file: $ZIP_FILE"
@@ -130,15 +127,17 @@ show_summary() {
     echo ""
     echo "Files included in the build:"
     echo "✅ gf-coupon-generator.php (main plugin file)"
-    echo "✅ README.md (documentation)"
+    echo "✅ README.md (development documentation)"
+    echo "✅ readme.txt (WordPress.org documentation)"
     echo "✅ assets/ (CSS and JavaScript)"
     echo "✅ views/ (admin templates)"
-    echo "✅ composer.json (dependency info)"
+
     echo ""
     echo "Files excluded from the build:"
     echo "❌ tests/ (unit and integration tests)"
     echo "❌ .github/ (CI/CD workflows)"
     echo "❌ vendor/ (development dependencies)"
+    echo "❌ composer.json (development dependencies)"
     echo "❌ phpcs.xml.dist (code standards config)"
     echo "❌ phpunit.xml.dist (testing config)"
     echo "❌ README-TESTING.md (testing documentation)"
@@ -176,7 +175,7 @@ validate_build() {
 
 # Main execution
 main() {
-    echo "🔨 Building GravityForms Coupon Manager Plugin"
+    echo "🔨 Building Coupon Manager for GravityForms Plugin"
     echo "=============================================="
     echo ""
     
