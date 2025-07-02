@@ -1,4 +1,4 @@
-# Release Guide
+# Release Guide 
 
 This document explains how to create releases for the Coupon Manager Plugin.
 
