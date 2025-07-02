@@ -269,6 +269,13 @@ class Test_Database_Integrity extends GF_Coupon_Test_Case {
     public function test_database_constraints() {
         global $wpdb;
         
+        // Suppress expected database errors during constraint testing
+        $wpdb->suppress_errors(true);
+        
+        // Store original error display setting
+        $original_show_errors = $wpdb->show_errors;
+        $wpdb->show_errors = false;
+        
         // Test NOT NULL constraints
         $required_fields = array('form_id', 'is_active', 'meta', 'addon_slug');
         
@@ -288,5 +295,9 @@ class Test_Database_Integrity extends GF_Coupon_Test_Case {
             
             $this->assertFalse($result, "Should not allow NULL in {$field} field");
         }
+        
+        // Restore error handling
+        $wpdb->suppress_errors(false);
+        $wpdb->show_errors = $original_show_errors;
     }
 } 

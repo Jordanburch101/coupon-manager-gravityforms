@@ -221,6 +221,32 @@ class GF_Coupon_Generator {
 	) {
 		global $wpdb;
 
+		// Validate required parameters to prevent NULL database errors
+		if ( empty( $form_id ) || ! is_numeric( $form_id ) ) {
+			return array(
+				'success' => 0,
+				'failed'  => $quantity,
+				'coupons' => array(),
+				'error'   => 'Invalid form_id provided',
+			);
+		}
+
+		// Ensure coupon_prefix is a string (can be empty)
+		$coupon_prefix = (string) $coupon_prefix;
+
+		// Validate amount_type and amount_value
+		if ( ! in_array( $amount_type, array( 'percentage', 'flat' ), true ) ) {
+			$amount_type = 'percentage';
+		}
+
+		if ( empty( $amount_value ) || ! is_numeric( $amount_value ) ) {
+			$amount_value = '0';
+		}
+
+		// Ensure usage_limit and is_stackable are integers
+		$usage_limit  = max( 1, intval( $usage_limit ) );
+		$is_stackable = intval( $is_stackable );
+
 		$results = array(
 			'success' => 0,
 			'failed'  => 0,
@@ -251,17 +277,26 @@ class GF_Coupon_Generator {
 				'isStackable'      => (string) $is_stackable, // Convert to string to match GF format.
 			);
 
+			// Validate all required fields before database insertion
+			$insert_data = array(
+				'form_id'    => intval( $form_id ),
+				'is_active'  => 1,
+				'feed_order' => 0,
+				'meta'       => wp_json_encode( $meta ),
+				'addon_slug' => 'gravityformscoupons',
+			);
+
+			// Validate all required fields before database insertion
+			if ( ! $this->validate_insert_data( $insert_data, array( 'form_id', 'is_active', 'meta', 'addon_slug' ) ) ) {
+				++$results['failed'];
+				continue; // Skip to next coupon iteration
+			}
+
 			// Insert into database.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$inserted = $wpdb->insert(
 				$wpdb->prefix . 'gf_addon_feed',
-				array(
-					'form_id'    => $form_id,
-					'is_active'  => 1,
-					'feed_order' => 0,
-					'meta'       => wp_json_encode( $meta ),
-					'addon_slug' => 'gravityformscoupons',
-				)
+				$insert_data
 			);
 
 			if ( $inserted ) {
@@ -307,6 +342,22 @@ class GF_Coupon_Generator {
 		}
 
 		return $code;
+	}
+
+	/**
+	 * Validate database insert data to prevent NULL constraint violations.
+	 *
+	 * @param array $data The data array to validate.
+	 * @param array $required_fields Array of required field names.
+	 * @return bool True if all required fields are valid, false otherwise.
+	 */
+	private function validate_insert_data( $data, $required_fields ) {
+		foreach ( $required_fields as $field ) {
+			if ( ! isset( $data[ $field ] ) || null === $data[ $field ] || '' === $data[ $field ] ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -487,12 +538,15 @@ class GF_Coupon_Generator {
 
 				case 'activate':
 				case 'deactivate':
+					// Validate the is_active value before update
+					$is_active_value = isset( $update_params['is_active'] ) ? intval( $update_params['is_active'] ) : 1;
+					
 					// Update is_active field directly.
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 					$update_result = $wpdb->update(
 						$wpdb->prefix . 'gf_addon_feed',
-						array( 'is_active' => $update_params['is_active'] ),
-						array( 'id' => $coupon->id )
+						array( 'is_active' => $is_active_value ),
+						array( 'id' => intval( $coupon->id ) )
 					);
 
 					if ( false !== $update_result ) {
@@ -507,11 +561,19 @@ class GF_Coupon_Generator {
 
 			// Save updated meta.
 			if ( $updated ) {
+				// Validate meta data before update
+				$encoded_meta = wp_json_encode( $meta );
+				if ( false === $encoded_meta || null === $encoded_meta || '' === $encoded_meta ) {
+					$result['message'] = 'Failed to encode coupon meta data';
+					$results['results'][] = $result;
+					continue;
+				}
+
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$update_result = $wpdb->update(
 					$wpdb->prefix . 'gf_addon_feed',
-					array( 'meta' => wp_json_encode( $meta ) ),
-					array( 'id' => $coupon->id )
+					array( 'meta' => $encoded_meta ),
+					array( 'id' => intval( $coupon->id ) )
 				);
 
 				if ( false !== $update_result ) {
