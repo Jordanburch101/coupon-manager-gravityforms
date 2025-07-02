@@ -9,6 +9,11 @@
     testdox="true"
     beStrictAboutTestsThatDoNotTestAnything="false"
 >
+    <php>
+        <!-- Suppress PHP deprecation warnings from WordPress core -->
+        <ini name="error_reporting" value="E_ALL &amp; ~E_DEPRECATED &amp; ~E_USER_DEPRECATED" />
+    </php>
+    
     <testsuites>
         <testsuite name="unit">
             <directory suffix="Test.php">./tests/unit</directory>
