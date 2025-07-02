@@ -31,6 +31,7 @@
 				<element value="gravityforms_edit_forms"/>
 				<element value="gravityforms_view_forms"/>
 				<element value="gravityforms_delete_forms"/>
+				<element value="gravityforms_coupons"/>
 			</property>
 		</properties>
 	</rule>
@@ -40,7 +41,12 @@
 		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
 	</rule>
 
-	<!-- Allow missing nonce verification in specific cases where GF handles it -->
+	<!-- Allow missing cache for direct database calls (GF integration) -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery.NoCaching">
+		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
+	</rule>
+
+	<!-- Allow missing nonce verification in specific cases where GF handles it or for GET parameter checks -->
 	<rule ref="WordPress.Security.NonceVerification">
 		<exclude-pattern>views/admin-page.php</exclude-pattern>
 	</rule>

@@ -109,7 +109,6 @@ class GF_Coupon_Generator {
 		// Unused parameter but required by WordPress hook.
 		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		unset( $hook );
-		
 		// Updated hook check for GF pages.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( is_admin() && isset( $_GET['page'] ) && 'gf_coupon_generator' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
@@ -252,33 +251,33 @@ class GF_Coupon_Generator {
 				'isStackable'      => (string) $is_stackable, // Convert to string to match GF format.
 			);
 
-					// Insert into database.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$inserted = $wpdb->insert(
-			$wpdb->prefix . 'gf_addon_feed',
-			array(
-				'form_id'    => $form_id,
-				'is_active'  => 1,
-				'feed_order' => 0,
-				'meta'       => wp_json_encode( $meta ),
-				'addon_slug' => 'gravityformscoupons',
-			)
-		);
+			// Insert into database.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$inserted = $wpdb->insert(
+				$wpdb->prefix . 'gf_addon_feed',
+				array(
+					'form_id'    => $form_id,
+					'is_active'  => 1,
+					'feed_order' => 0,
+					'meta'       => wp_json_encode( $meta ),
+					'addon_slug' => 'gravityformscoupons',
+				)
+			);
 
 			if ( $inserted ) {
 				$feed_id = $wpdb->insert_id;
 
 				// Now update the name with the ID.
-				$updated_name = "Coupon - #{$feed_id}";
+				$updated_name       = "Coupon - #{$feed_id}";
 				$meta['couponName'] = $updated_name;
 
-							// Update the record with the new name.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->update(
-				$wpdb->prefix . 'gf_addon_feed',
-				array( 'meta' => wp_json_encode( $meta ) ),
-				array( 'id' => $feed_id )
-			);
+				// Update the record with the new name.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->update(
+					$wpdb->prefix . 'gf_addon_feed',
+					array( 'meta' => wp_json_encode( $meta ) ),
+					array( 'id' => $feed_id )
+				);
 
 				++$results['success'];
 				$results['coupons'][] = array(
@@ -301,7 +300,7 @@ class GF_Coupon_Generator {
 	 */
 	private function generate_random_code( $length = 8 ) {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-		$code = '';
+		$code  = '';
 
 		for ( $i = 0; $i < $length; $i++ ) {
 			$code .= $chars[ wp_rand( 0, strlen( $chars ) - 1 ) ];
@@ -340,11 +339,11 @@ class GF_Coupon_Generator {
 
 		switch ( $update_action ) {
 			case 'discount':
-				$update_params['amount_type'] = isset( $_POST['new_amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_type'] ) ) : '';
+				$update_params['amount_type']  = isset( $_POST['new_amount_type'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_type'] ) ) : '';
 				$update_params['amount_value'] = isset( $_POST['new_amount_value'] ) ? sanitize_text_field( wp_unslash( $_POST['new_amount_value'] ) ) : '';
 				break;
 			case 'dates':
-				$update_params['start_date'] = isset( $_POST['new_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_start_date'] ) ) : '';
+				$update_params['start_date']  = isset( $_POST['new_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_start_date'] ) ) : '';
 				$update_params['expiry_date'] = isset( $_POST['new_expiry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['new_expiry_date'] ) ) : '';
 				break;
 			case 'usage':
@@ -427,16 +426,16 @@ class GF_Coupon_Generator {
 				'message'     => '',
 			);
 
-					// Find coupon by code.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$coupon = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}gf_addon_feed 
-				WHERE addon_slug = 'gravityformscoupons' 
-				AND meta LIKE %s",
-				'%"couponCode":"' . $wpdb->esc_like( $coupon_code ) . '"%'
-			)
-		);
+			// Find coupon by code.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$coupon = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM {$wpdb->prefix}gf_addon_feed 
+					WHERE addon_slug = 'gravityformscoupons' 
+					AND meta LIKE %s",
+					'%"couponCode":"' . $wpdb->esc_like( $coupon_code ) . '"%'
+				)
+			);
 
 			if ( ! $coupon ) {
 				$result['message']    = 'Coupon not found';
@@ -488,13 +487,13 @@ class GF_Coupon_Generator {
 
 				case 'activate':
 				case 'deactivate':
-									// Update is_active field directly.
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$update_result = $wpdb->update(
-					$wpdb->prefix . 'gf_addon_feed',
-					array( 'is_active' => $update_params['is_active'] ),
-					array( 'id' => $coupon->id )
-				);
+					// Update is_active field directly.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$update_result = $wpdb->update(
+						$wpdb->prefix . 'gf_addon_feed',
+						array( 'is_active' => $update_params['is_active'] ),
+						array( 'id' => $coupon->id )
+					);
 
 					if ( false !== $update_result ) {
 						$result['status']  = 'success';
@@ -506,14 +505,14 @@ class GF_Coupon_Generator {
 					continue 2;
 			}
 
-					// Save updated meta.
-		if ( $updated ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$update_result = $wpdb->update(
-				$wpdb->prefix . 'gf_addon_feed',
-				array( 'meta' => wp_json_encode( $meta ) ),
-				array( 'id' => $coupon->id )
-			);
+			// Save updated meta.
+			if ( $updated ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$update_result = $wpdb->update(
+					$wpdb->prefix . 'gf_addon_feed',
+					array( 'meta' => wp_json_encode( $meta ) ),
+					array( 'id' => $coupon->id )
+				);
 
 				if ( false !== $update_result ) {
 					$result['status']  = 'success';
