@@ -2,7 +2,7 @@
 Contributors: jordanburch101
 Tags: gravity forms, coupons, bulk, discount, woocommerce
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Requires PHP: 8.1
 Stable tag: 0.0.4
 License: GPL v3 or later
