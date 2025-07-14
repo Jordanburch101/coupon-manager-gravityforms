@@ -38,12 +38,12 @@
 
 	<!-- Allow direct database calls for this plugin since it's integrating with GF's database structure -->
 	<rule ref="WordPress.DB.DirectDatabaseQuery">
-		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
+		<exclude-pattern>coupon-manager-for-gravityforms.php</exclude-pattern>
 	</rule>
 
 	<!-- Allow missing cache for direct database calls (GF integration) -->
 	<rule ref="WordPress.DB.DirectDatabaseQuery.NoCaching">
-		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
+		<exclude-pattern>coupon-manager-for-gravityforms.php</exclude-pattern>
 	</rule>
 
 	<!-- Allow missing nonce verification in specific cases where GF handles it or for GET parameter checks -->
@@ -53,6 +53,6 @@
 
 	<!-- Allow unused parameters in WordPress hooks -->
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
-		<exclude-pattern>gf-coupon-generator.php</exclude-pattern>
+		<exclude-pattern>coupon-manager-for-gravityforms.php</exclude-pattern>
 	</rule>
 </ruleset> 

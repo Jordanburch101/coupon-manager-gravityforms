@@ -3,7 +3,7 @@
  * Integration tests for AJAX handlers
  */
 
-class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
+class Test_Ajax_Handlers extends Coupmafo_Coupon_Test_Case {
 
     /**
      * Test AJAX coupon generation with valid data
@@ -14,7 +14,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         wp_set_current_user($admin_user);
 
         // Simulate AJAX request
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'form_id' => 1,
             'coupon_prefix' => 'AJAX_TEST_',
             'coupon_length' => 8,
@@ -52,7 +52,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $admin_user = $this->factory->user->create(array('role' => 'administrator'));
         wp_set_current_user($admin_user);
 
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'coupon_prefix' => 'TEST_',
             'quantity' => 1
         ));
@@ -69,7 +69,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         wp_set_current_user($admin_user);
 
         // Test quantity too high
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'form_id' => 1,
             'quantity' => 1001
         ));
@@ -78,7 +78,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $this->assertStringContainsString('between 1 and 1000', $response['data']);
 
         // Test quantity too low
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'form_id' => 1,
             'quantity' => 0
         ));
@@ -94,7 +94,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $subscriber = $this->factory->user->create(array('role' => 'subscriber'));
         wp_set_current_user($subscriber);
 
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'form_id' => 1,
             'quantity' => 1
         ));
@@ -125,7 +125,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         }
 
         // Update coupons via AJAX
-        $response = $this->make_ajax_request('update_gf_coupons', array(
+        $response = $this->make_ajax_request('update_coupmafo_coupons', array(
             'csv_content' => $csv_content,
             'update_action' => 'discount',
             'new_amount_type' => 'flat',
@@ -161,7 +161,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $coupon_code = $result['coupons'][0]['coupon_code'];
 
         // Update dates
-        $response = $this->make_ajax_request('update_gf_coupons', array(
+        $response = $this->make_ajax_request('update_coupmafo_coupons', array(
             'csv_content' => $coupon_code,
             'update_action' => 'dates',
             'new_start_date' => '2024-03-01',
@@ -189,7 +189,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $coupon_code = $result['coupons'][0]['coupon_code'];
 
         // Deactivate
-        $response = $this->make_ajax_request('update_gf_coupons', array(
+        $response = $this->make_ajax_request('update_coupmafo_coupons', array(
             'csv_content' => $coupon_code,
             'update_action' => 'deactivate'
         ));
@@ -199,7 +199,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         $this->assertEquals(0, $coupon->is_active);
 
         // Reactivate
-        $response = $this->make_ajax_request('update_gf_coupons', array(
+        $response = $this->make_ajax_request('update_coupmafo_coupons', array(
             'csv_content' => $coupon_code,
             'update_action' => 'activate'
         ));
@@ -217,7 +217,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
         wp_set_current_user($admin_user);
 
         // Empty CSV
-        $response = $this->make_ajax_request('update_gf_coupons', array(
+        $response = $this->make_ajax_request('update_coupmafo_coupons', array(
             'csv_content' => '',
             'update_action' => 'discount'
         ));
@@ -235,7 +235,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
 
         // Manually set invalid nonce
         $_POST = array(
-            'action' => 'generate_gf_coupons',
+            'action' => 'generate_coupmafo_coupons',
             'nonce' => 'invalid_nonce',
             'form_id' => 1,
             'quantity' => 1
@@ -243,7 +243,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
 
         // This should trigger wp_die with error
         $this->expectException('WPDieException');
-        do_action('wp_ajax_generate_gf_coupons');
+        do_action('wp_ajax_generate_coupmafo_coupons');
     }
 
     /**
@@ -257,7 +257,7 @@ class Test_Ajax_Handlers extends GF_Coupon_Test_Case {
 
         // Simulate multiple concurrent requests
         for ($i = 0; $i < 5; $i++) {
-            $responses[] = $this->make_ajax_request('generate_gf_coupons', array(
+            $responses[] = $this->make_ajax_request('generate_coupmafo_coupons', array(
                 'form_id' => 1,
                 'coupon_prefix' => "CONCURRENT{$i}_",
                 'quantity' => 10

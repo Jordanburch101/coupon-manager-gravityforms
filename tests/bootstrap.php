@@ -35,7 +35,7 @@ function _manually_load_plugin() {
     require_once dirname(__DIR__) . '/tests/mocks/class-gf-mocks.php';
 
     // Load our plugin
-    require dirname(__DIR__) . '/gf-coupon-generator.php';
+    require dirname(__DIR__) . '/coupon-manager-for-gravityforms.php';
 }
 
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');

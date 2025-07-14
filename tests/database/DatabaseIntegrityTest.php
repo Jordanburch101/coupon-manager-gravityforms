@@ -3,7 +3,7 @@
  * Database integrity tests
  */
 
-class Test_Database_Integrity extends GF_Coupon_Test_Case {
+class Test_Database_Integrity extends Coupmafo_Coupon_Test_Case {
 
     /**
      * Test transaction rollback on failure

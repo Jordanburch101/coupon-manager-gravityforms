@@ -3,7 +3,7 @@
  * Unit tests for coupon generation
  */
 
-class Test_Coupon_Generation extends GF_Coupon_Test_Case {
+class Test_Coupon_Generation extends Coupmafo_Coupon_Test_Case {
 
     /**
      * Test basic coupon generation
@@ -165,7 +165,7 @@ class Test_Coupon_Generation extends GF_Coupon_Test_Case {
         $this->assertEquals(1000, $result['success'], 'Should allow up to 1000 coupons');
 
         // Test AJAX validation for over limit
-        $response = $this->make_ajax_request('generate_gf_coupons', array(
+        $response = $this->make_ajax_request('generate_coupmafo_coupons', array(
             'form_id' => 1,
             'quantity' => 1001,
             'coupon_prefix' => 'OVERLIMIT_'
