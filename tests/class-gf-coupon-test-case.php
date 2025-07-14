@@ -3,7 +3,7 @@
  * Base test case class for GF Coupon Generator tests
  */
 
-class GF_Coupon_Test_Case extends WP_UnitTestCase {
+class Coupmafo_Coupon_Test_Case extends WP_UnitTestCase {
 
     protected $plugin;
     protected $original_tables = array();
@@ -15,7 +15,7 @@ class GF_Coupon_Test_Case extends WP_UnitTestCase {
         parent::setUp();
 
         // Get plugin instance
-        $this->plugin = GF_Coupon_Generator::get_instance();
+        $this->plugin = Coupmafo_Coupon_Generator::get_instance();
 
         // Create necessary database tables
         $this->create_gf_tables();
@@ -182,7 +182,7 @@ class GF_Coupon_Test_Case extends WP_UnitTestCase {
         // Set up the request
         $_POST = array_merge($data, array(
             'action' => $action,
-            'nonce' => wp_create_nonce('gf_coupon_generator_nonce')
+            'nonce' => wp_create_nonce('coupmafo_coupon_generator_nonce')
         ));
 
         // Simulate admin user

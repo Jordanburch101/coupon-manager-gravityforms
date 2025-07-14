@@ -5,9 +5,8 @@
  * Version: 0.0.4
  * Author: Jordan Burch
  * Author URI: https://github.com/Jordanburch101
- * Text Domain: coupon-manager
- * Package: GF_Coupon_Manager
- * Requires Plugins: gravityforms, gravityformscoupons
+ * Text Domain: coupon-manager-for-gravityforms
+ * Package: Coupmafo_Coupon_Manager
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -24,7 +23,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
- * @package GF_Coupon_Manager
+ * @package Coupmafo_Coupon_Manager
  */
 
 // Exit if accessed directly.
@@ -33,26 +32,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'GF_COUPON_GEN_VERSION', '1.0.0' );
-define( 'GF_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'GF_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
+define( 'COUPMAFO_COUPON_GEN_VERSION', '1.0.0' );
+define( 'COUPMAFO_COUPON_GEN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'COUPMAFO_COUPON_GEN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Main plugin class for Coupon Manager for GravityForms.
  */
-class GF_Coupon_Generator {
+class Coupmafo_Coupon_Generator {
 
 	/**
 	 * Single instance of the class.
 	 *
-	 * @var GF_Coupon_Generator|null
+	 * @var Coupmafo_Coupon_Generator|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get the singleton instance of the class.
 	 *
-	 * @return GF_Coupon_Generator
+	 * @return Coupmafo_Coupon_Generator
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -75,8 +74,8 @@ class GF_Coupon_Generator {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
 		// Ajax handlers.
-		add_action( 'wp_ajax_generate_gf_coupons', array( $this, 'generate_coupons_ajax' ) );
-		add_action( 'wp_ajax_update_gf_coupons', array( $this, 'update_coupons_ajax' ) );
+		add_action( 'wp_ajax_generate_coupmafo_coupons', array( $this, 'generate_coupons_ajax' ) );
+		add_action( 'wp_ajax_update_coupmafo_coupons', array( $this, 'update_coupons_ajax' ) );
 	}
 
 	/**
@@ -94,7 +93,7 @@ class GF_Coupon_Generator {
 	public function admin_notice_missing_gf() {
 		?>
 		<div class="notice notice-error">
-			<p><?php esc_html_e( 'Coupon Manager for GravityForms requires both Gravity Forms and Gravity Forms Coupons Add-On to be installed and activated.', 'coupon-manager' ); ?></p>
+			<p><?php esc_html_e( 'Coupon Manager for GravityForms requires both Gravity Forms and Gravity Forms Coupons Add-On to be installed and activated.', 'coupon-manager-for-gravityforms' ); ?></p>
 		</div>
 		<?php
 	}
@@ -107,8 +106,8 @@ class GF_Coupon_Generator {
 	 */
 	public function add_menu_item( $menus ) {
 		$menus[] = array(
-			'name'       => 'gf_coupon_generator',
-			'label'      => __( 'Coupon Manager', 'coupon-manager' ),
+			'name'       => 'coupmafo_coupon_generator',
+			'label'      => __( 'Coupon Manager', 'coupon-manager-for-gravityforms' ),
 			'callback'   => array( $this, 'render_admin_page' ),
 			'permission' => 'manage_options',
 		);
@@ -127,28 +126,28 @@ class GF_Coupon_Generator {
 		unset( $hook );
 		// Updated hook check for GF pages.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( is_admin() && isset( $_GET['page'] ) && 'gf_coupon_generator' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		if ( is_admin() && isset( $_GET['page'] ) && 'coupmafo_coupon_generator' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
 			wp_enqueue_style(
-				'gf-coupon-generator-css',
-				GF_COUPON_GEN_URL . 'assets/css/admin.css',
+				'coupmafo-coupon-generator-css',
+				COUPMAFO_COUPON_GEN_URL . 'assets/css/admin.css',
 				array(),
-				GF_COUPON_GEN_VERSION
+				COUPMAFO_COUPON_GEN_VERSION
 			);
 
 			wp_enqueue_script(
-				'gf-coupon-generator-js',
-				GF_COUPON_GEN_URL . 'assets/js/admin.js',
+				'coupmafo-coupon-generator-js',
+				COUPMAFO_COUPON_GEN_URL . 'assets/js/admin.js',
 				array( 'jquery' ),
-				GF_COUPON_GEN_VERSION,
+				COUPMAFO_COUPON_GEN_VERSION,
 				true
 			);
 
 			wp_localize_script(
-				'gf-coupon-generator-js',
-				'gfCouponGen',
+				'coupmafo-coupon-generator-js',
+				'coupmafoCouponGen',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'gf_coupon_generator_nonce' ),
+					'nonce'   => wp_create_nonce( 'coupmafo_coupon_generator_nonce' ),
 				)
 			);
 		}
@@ -158,14 +157,14 @@ class GF_Coupon_Generator {
 	 * Render the admin page.
 	 */
 	public function render_admin_page() {
-		include GF_COUPON_GEN_PATH . 'views/admin-page.php';
+		include COUPMAFO_COUPON_GEN_PATH . 'views/admin-page.php';
 	}
 
 	/**
 	 * Handle AJAX request for generating coupons.
 	 */
 	public function generate_coupons_ajax() {
-		check_ajax_referer( 'gf_coupon_generator_nonce', 'nonce' );
+		check_ajax_referer( 'coupmafo_coupon_generator_nonce', 'nonce' );
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -380,7 +379,7 @@ class GF_Coupon_Generator {
 	 * Handle AJAX request for updating coupons.
 	 */
 	public function update_coupons_ajax() {
-		check_ajax_referer( 'gf_coupon_generator_nonce', 'nonce' );
+		check_ajax_referer( 'coupmafo_coupon_generator_nonce', 'nonce' );
 
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -610,4 +609,4 @@ class GF_Coupon_Generator {
 }
 
 // Initialize the plugin.
-GF_Coupon_Generator::get_instance();
+Coupmafo_Coupon_Generator::get_instance();

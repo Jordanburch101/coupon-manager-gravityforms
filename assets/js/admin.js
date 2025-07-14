@@ -126,8 +126,8 @@
                 
                 // Collect form data
                 var formData = {
-                    action: 'update_gf_coupons',
-                    nonce: gfCouponGen.nonce,
+                    action: 'update_coupmafo_coupons',
+                    nonce: coupmafoCouponGen.nonce,
                     csv_content: csvContent,
                     update_action: $updateAction.val()
                 };
@@ -151,7 +151,7 @@
                 }
                 
                 // Send AJAX request
-                $.post(gfCouponGen.ajaxUrl, formData, function(response) {
+                $.post(coupmafoCouponGen.ajaxUrl, formData, function(response) {
                     if (response.success) {
                         var result = response.data;
                         
@@ -255,8 +255,8 @@
             
             // Collect form data
             var formData = {
-                action: 'generate_gf_coupons',
-                nonce: gfCouponGen.nonce,
+                action: 'generate_coupmafo_coupons',
+                nonce: coupmafoCouponGen.nonce,
                 form_id: $('#form_id').val(),
                 coupon_prefix: $('#coupon_prefix').val(),
                 coupon_length: $('#coupon_length').val(),
@@ -270,7 +270,7 @@
             };
             
             // Send AJAX request
-            $.post(gfCouponGen.ajaxUrl, formData, function(response) {
+            $.post(coupmafoCouponGen.ajaxUrl, formData, function(response) {
                 if (response.success) {
                     var result = response.data;
                     

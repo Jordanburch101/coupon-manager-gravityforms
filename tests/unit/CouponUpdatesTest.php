@@ -3,7 +3,7 @@
  * Unit tests for coupon updates
  */
 
-class Test_Coupon_Updates extends GF_Coupon_Test_Case {
+class Test_Coupon_Updates extends Coupmafo_Coupon_Test_Case {
 
     /**
      * Test updating discount amount
